@@ -1,0 +1,36 @@
+{
+  "name": "ts-infer",
+  "version": "0.0.1",
+  "description": "Inferência de tipagem para unidades de testes em typescript",
+  "keywords": [
+    "test, inference, typescript, jest, generic"
+  ],
+  "main": "infer.js",
+  "author": "Filipe Roberto Beck",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:FilipeBeck/ts-infer.git"
+  },
+  "private": false,
+  "scripts": {
+    "test": "reset && jest --coverage",
+    "build": "reset && tsc && cp package.json README.md ./app"
+  },
+  "peerDependencies": {
+    "typescript": "^3.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.15",
+    "@types/node": "^12.0.10",
+    "@types/rewire": "^2.5.28",
+    "jest": "^24.8.0",
+    "rewire": "^4.0.1",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.2"
+  },
+  "dependencies": {
+    "get-tsconfig": "^1.0.1",
+    "tslib": "^1.10.0"
+  }
+}
