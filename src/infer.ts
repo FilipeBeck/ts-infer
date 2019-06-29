@@ -57,7 +57,7 @@ function getCodeOrigin(stack: string[]): [string, number, number] {
 		throw new Error('Função sendo chamada fora do escopo de `infer()`')
 	}
 	
-	const parts = callerLine && callerLine.match(/\((.+)\)/)
+	const parts = callerLine && (callerLine.match(/\((.+)\)/) || callerLine.match(/at\s+(.+)/))
 	const origin = parts && parts[1].split(':').map((part, i) => i && Number(part) || part) as [string, number, number]
 
 	if (!parts || !origin || origin.length != 3) {

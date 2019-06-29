@@ -11,12 +11,16 @@ const getContentBetweenTokens = inferModule.__get__('getContentBetweenTokens') a
 const getErrorDiagnostics = inferModule.__get__('getErrorDiagnostics') as (code: string) => readonly ts.Diagnostic[]
 
 test('getStack', () => {
-	const stack = getStack()
-	const isWellFormed = Boolean(
-		stack[0] && stack[0].includes('at getStack') &&
-		stack[1] && stack[1].includes('<anonymous>.test')
-	)
-	expect(isWellFormed).toBeTruthy()
+	const wrapperCaller6e5bc4931e93496e937a984b66359207 = () => {
+		const stack = getStack()
+		const isGetStackFirstLine = Boolean(stack[0] && stack[0].includes('at getStack'))
+		const isWrapperCallerSecondLine = Boolean(stack[1] && stack[1].includes('at wrapperCaller6e5bc4931e93496e937a984b66359207'))
+
+		expect(isGetStackFirstLine).toBeTruthy()
+		expect(isWrapperCallerSecondLine).toBeTruthy()
+	}
+	
+	wrapperCaller6e5bc4931e93496e937a984b66359207()
 })
 
 test('getFileContent', () => {
