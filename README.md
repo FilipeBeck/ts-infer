@@ -1,5 +1,7 @@
 # ts-infer
 
+[![Coverage Status](https://coveralls.io/repos/github/FilipeBeck/ts-infer/badge.svg?branch=master)](https://coveralls.io/github/FilipeBeck/ts-infer?branch=master)
+
 ## Inferência de tipagem para unidades de testes em typescript
 
 # Motivação

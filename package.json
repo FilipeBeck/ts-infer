@@ -15,6 +15,7 @@
   "private": false,
   "scripts": {
     "test": "reset && jest --coverage",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "build": "reset && tsc && cp package.json README.md ./app"
   },
   "peerDependencies": {
@@ -24,6 +25,7 @@
     "@types/jest": "^24.0.15",
     "@types/node": "^12.0.10",
     "@types/rewire": "^2.5.28",
+    "coveralls": "^3.0.4",
     "jest": "^24.8.0",
     "rewire": "^4.0.1",
     "ts-jest": "^24.0.2",
