@@ -47,7 +47,7 @@ function getFileContent(fileName: string): string {
 /**
  * Retorna o nome do arquivo, linha e coluna do código.
  * @param stack Pilha de chamadas.
- * @throws Não pode ser chamada fora do escopo da função `infer()` e só aceita um formato específico da pilha de chamadas.
+ * @throws Não pode ser chamada fora do escopo da função `infer()`.
  */
 function getCodeOrigin(stack: string[]): [string, number, number] {
 	const inferLine = stack[1]
@@ -57,13 +57,15 @@ function getCodeOrigin(stack: string[]): [string, number, number] {
 		throw new Error('Função sendo chamada fora do escopo de `infer()`')
 	}
 	
-	const parts = callerLine && (callerLine.match(/\((.+)\)/) || callerLine.match(/at\s+(.+)/))
-	const origin = parts && parts[1].split(':').map((part, i) => i && Number(part) || part) as [string, number, number]
+	const referencePiece = callerLine && (callerLine.match(/\((.+)\)/) || callerLine.match(/at\s+(.+)/))
+	const origin = referencePiece && referencePiece[1].split(':').map((part, i) => i && Number(part) || part) as [string, number, number]
 
-	if (!parts || !origin || origin.length != 3) {
-		throw new Error('Formato inesperado da pilha de chamadas')
+	if (!origin || origin.length != 3) {
+		console.error('Formato inesperado da pilha de chamadas')
+		process.exit(1)
+		return undefined as any // Evita TS2322 - não há finalidade em fazer o usuário testar o retorno visto que o processo encerra
 	}
-
+	
 	return origin
 }
 
