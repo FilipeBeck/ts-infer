@@ -150,5 +150,5 @@ function getDiagnostics(code: string, sourceFileName: string, compilerOptions?: 
 
 	fs.unlinkSync(codeFileName)
 
-	return ts.getPreEmitDiagnostics(program).concat(program.emit().diagnostics)
+	return ts.getPreEmitDiagnostics(program)
 }
