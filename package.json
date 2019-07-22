@@ -1,6 +1,6 @@
 {
   "name": "ts-infer",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "Inferência de tipagem para unidades de testes em typescript",
   "keywords": [
     "test, inference, typescript, jest, generic"
