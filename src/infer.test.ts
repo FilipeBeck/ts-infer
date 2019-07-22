@@ -1,14 +1,14 @@
 import ts from 'typescript'
 import fs from 'fs'
 import rewire from 'rewire'
-import infer from './infer'
+import infer, { diagnose } from './infer'
 const inferModule = rewire("../app/infer");
 const getStack = inferModule.__get__('getStack') as () => string[]
 const getFileContent = inferModule.__get__('getFileContent') as (fileName: string) => string
 const getCodeOrigin = inferModule.__get__('getCodeOrigin') as (stack: string[]) => [string, number, number]
 const getImports = inferModule.__get__('getImports') as (content: string) => string
 const getContentBetweenTokens = inferModule.__get__('getContentBetweenTokens') as (tokens: [string, string], content: string, beginIndexes: [number, number]) => string
-const getErrorDiagnostics = inferModule.__get__('getErrorDiagnostics') as (code: string) => readonly ts.Diagnostic[]
+const getDiagnostics = inferModule.__get__('getDiagnostics') as (code: string) => readonly ts.Diagnostic[]
 
 test('getStack', () => {
 	const wrapperCaller6e5bc4931e93496e937a984b66359207 = () => {
@@ -40,7 +40,7 @@ test('getFileContent', () => {
 })
 
 test('getCodeOrigin', () => {
-	const infer = () => {
+	const diagnose = () => {
 		const stack = getStack()
 		const [fileName] = getCodeOrigin(stack)
 		
@@ -49,7 +49,7 @@ test('getCodeOrigin', () => {
 		}
 	}
 
-	expect(infer).not.toThrow()
+	expect(diagnose).not.toThrow()
 })
 
 test('getImports', () => {
@@ -95,7 +95,7 @@ test('getContentBetweenTokes', () => {
 	expect(() => getContentBetweenTokens(['(', ')'], code, [2, 1])).toThrow()
 })
 
-test('getErrorDiagnostics', () => {
+test('getDiagnostics', () => {
 	const code1 = `(() => {
 		interface Inter {
 			a: number
@@ -116,8 +116,22 @@ test('getErrorDiagnostics', () => {
 		const inter: Inter = { a: 1, b: 2 }
 	})`
 
-	expect(getErrorDiagnostics(code1).length).toBe(0)
-	expect(getErrorDiagnostics(code2).length).toBeGreaterThan(0)
+	expect(getDiagnostics(code1).length).toBe(0)
+	expect(getDiagnostics(code2).length).toBeGreaterThan(0)
+})
+
+test('diagnose', () => {
+	const diagnostics = diagnose(() => {
+		interface Inter {
+			a: number
+			b: string
+		}
+		// @ts-ignore
+		const inter: Inter = { a: 1, b: 2}
+	})
+
+	expect(diagnostics.length).toBe(1)
+	expect(diagnostics[0].category).toBe(ts.DiagnosticCategory.Error)
 })
 
 test('infer', () => {

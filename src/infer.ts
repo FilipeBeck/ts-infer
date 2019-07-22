@@ -5,20 +5,31 @@ import { getTsconfig } from 'get-tsconfig'
 /**
  * Infere a função typescript especificada, disparando uma exceção caso a mesma apresente erros de compilação. As declarações `// @ts-ignore` serão removidas. Isso possibilita que o usuário insira essas diretivas para o compilador não falhar na verificação do arquivo de teste, mas falhar na inferência de `infer()` e passar no teste quando isso for o esperado.
  * @param closure Trecho de código a ser testado.
- * @param compilerOptions Configurações de compilação. Usa o arquivo do projeto corrente.
+ * @param compilerOptions Configurações de compilação. Se não fornecido, usa o arquivo do projeto corrente.
  */
 export default function infer(closure: Function, compilerOptions?: ts.CompilerOptions): void {
+	const errors = diagnose(closure, compilerOptions)	
+
+	if (errors.length) {
+		throw new Error(errors.map(error => error.messageText).join('\n'))
+	}
+}
+
+/**
+ * Infere a função typescript especificada, retornando uma lista de todos os erros encontrados. Como em `infer`, as declarações de `// @ts-ignore` serão removidas.
+ * @param closure Trecho de código a ser testado.
+ * @param compilerOptions Configurações de compilação. Se não fornecido, usa o arquivo do projeto corrente.
+ */
+export function diagnose(closure: Function, compilerOptions?: ts.CompilerOptions): readonly ts.Diagnostic[] {
 	const stack = getStack()
 	const [fileName, line, column] = getCodeOrigin(stack)
 	const fileContent = getFileContent(fileName)
 	const imports = getImports(fileContent)
 	const block = getContentBetweenTokens(['(', ')'], fileContent, [line, column])
 	const code = imports + '\n' + block
-	const errors = getErrorDiagnostics(code, fileName, compilerOptions)
+	const diagnostics = getDiagnostics(code, fileName, compilerOptions)	
 
-	if (errors.length) {
-		throw new Error(errors.map(error => error.messageText).join('\n'))
-	}
+	return diagnostics.filter(diagnostic => diagnostic.category == ts.DiagnosticCategory.Error)
 }
 
 /**
@@ -53,8 +64,8 @@ function getCodeOrigin(stack: string[]): [string, number, number] {
 	const inferLine = stack[1]
 	const callerLine = stack.find(line => line.search(/at (.*\.)?test/) != -1)
 
-	if (!inferLine || inferLine.search(/at (.*\.)?infer/) == -1) {
-		throw new Error('Função sendo chamada fora do escopo de `infer()`')
+	if (!inferLine || inferLine.search(/at (.*\.)?diagnose/) == -1) {
+		throw new Error('Função sendo chamada fora do escopo do pacote')
 	}
 	
 	const referencePiece = callerLine && (callerLine.match(/\((.+)\)/) || callerLine.match(/at\s+(.+)/))
@@ -116,12 +127,12 @@ function getContentBetweenTokens(tokens: [string, string], content: string, begi
 }
 
 /**
- * Retorna a lista de erros encontrados no código especificado. Essa função precisa criar um arquivo temporário no mesmo local para as importações serem bem sucedidas.
+ * Retorna a lista de diagnósticos encontrados no código especificado. Essa função precisa criar um arquivo temporário no mesmo local para as importações serem bem sucedidas.
  * @param code Código a ser diagnosticado.
  * @param sourceFileName Caminho do arquivo fonte.
  * @param compilerOptions Opções do compilador. Se não fornecido, usa o arquivo do projeto corrente.
  */
-function getErrorDiagnostics(code: string, sourceFileName: string, compilerOptions?: ts.CompilerOptions): readonly ts.Diagnostic[] {
+function getDiagnostics(code: string, sourceFileName: string, compilerOptions?: ts.CompilerOptions): readonly ts.Diagnostic[] {
 	const codeFileName = `${sourceFileName}.block.${Math.random()}.ts`
 
 	if (!compilerOptions) {
@@ -139,5 +150,5 @@ function getErrorDiagnostics(code: string, sourceFileName: string, compilerOptio
 
 	fs.unlinkSync(codeFileName)
 
-	return ts.getPreEmitDiagnostics(program).filter(diagnostic => diagnostic.category == ts.DiagnosticCategory.Error)
+	return ts.getPreEmitDiagnostics(program).concat(program.emit().diagnostics)
 }
