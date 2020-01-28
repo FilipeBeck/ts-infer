@@ -104,7 +104,7 @@ function getContentBetweenTokens(tokens: [string, string], content: string, begi
 	let tokenCount = 0
 	let begin = 0
 	let end = 0
-
+	// TODO: Primeiro pegar substring e só depois concatenar
 	content = content.split('\n').slice(line - 1).join('\n').substring(column - 1)
 
 	for (let i = 0, count = content.length; i < count; i++) {

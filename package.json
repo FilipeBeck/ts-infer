@@ -14,9 +14,10 @@
   },
   "private": false,
   "scripts": {
-    "test": "reset && jest --coverage",
+    "test": "jest --coverage",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "build": "reset && tsc && cp package.json README.md ./app"
+    "build": "tsc && cp package.json README.md ./app",
+    "doc": "typedoc --options typedoc.json"
   },
   "peerDependencies": {
     "typescript": "^3.5"
@@ -29,6 +30,7 @@
     "jest": "^24.8.0",
     "rewire": "^4.0.1",
     "ts-jest": "^24.0.2",
+    "typedoc": "^0.16.9",
     "typescript": "^3.5.2"
   },
   "dependencies": {

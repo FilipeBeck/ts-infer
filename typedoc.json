@@ -1,0 +1,9 @@
+{
+	"inputFiles": ["./src/infer.ts"],
+	"mode": "modules",
+	"out": "doc",
+	"exclude": ["**/*.test.ts"],
+	"theme": "minimal",
+	"name": "TS Infer",
+	"readme": "none"
+}
