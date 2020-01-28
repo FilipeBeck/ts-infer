@@ -8,6 +8,7 @@ const getFileContent = inferModule.__get__('getFileContent') as (fileName: strin
 const getCodeOrigin = inferModule.__get__('getCodeOrigin') as (stack: string[]) => [string, number, number]
 const getImports = inferModule.__get__('getImports') as (content: string) => string
 const getContentBetweenTokens = inferModule.__get__('getContentBetweenTokens') as (tokens: [string, string], content: string, beginIndexes: [number, number]) => string
+const removeIgnoreComments = inferModule.__get__('removeIgnoreComments') as (code: string) => string
 const getDiagnostics = inferModule.__get__('getDiagnostics') as (code: string) => readonly ts.Diagnostic[]
 
 test('getStack', () => {
@@ -118,6 +119,34 @@ test('getDiagnostics', () => {
 
 	expect(getDiagnostics(code1).length).toBe(0)
 	expect(getDiagnostics(code2).length).toBeGreaterThan(0)
+})
+
+test('removeIgnoreTags', () => {
+	const codeBeforeRemove = `
+		// Não removido
+		const a = 10
+		// @ts-ignore
+		const b = 20
+		// @ts-ignore - texto removido junto
+		const c = 30
+		// Não removido //@ts-ignore
+		// Não removido @ts-ignore
+		const d = 40
+	`
+
+	const codeAfterRemove = `
+		// Não removido
+		const a = 10
+		const b = 20
+		const c = 30
+		// Não removido //@ts-ignore
+		// Não removido @ts-ignore
+		const d = 40
+	`
+
+	const removed = removeIgnoreComments(codeBeforeRemove)
+
+	expect(removed).toBe(codeAfterRemove)
 })
 
 test('diagnose', () => {

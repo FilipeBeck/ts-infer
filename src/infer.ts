@@ -127,6 +127,14 @@ function getContentBetweenTokens(tokens: [string, string], content: string, begi
 }
 
 /**
+ * Remove os comentários `// @ts-ignore` de `code`.
+ * @param code Code a ser formatado.
+ */
+function removeIgnoreComments(code: string): string {
+	return code.replace(/^\s*\/\/\s*@ts-ignore.*\n/gm, '')
+}
+
+/**
  * Retorna a lista de diagnósticos encontrados no código especificado. Essa função precisa criar um arquivo temporário no mesmo local para as importações serem bem sucedidas.
  * @param code Código a ser diagnosticado.
  * @param sourceFileName Caminho do arquivo fonte.
@@ -142,7 +150,7 @@ function getDiagnostics(code: string, sourceFileName: string, compilerOptions?: 
 	compilerOptions.noUnusedLocals = false
 	compilerOptions.noImplicitReturns = false
 
-	code = code.replace(/\/\/\s*@ts-ignore/g, '')
+	code = removeIgnoreComments(code)
 
 	fs.writeFileSync(codeFileName, code)
 
