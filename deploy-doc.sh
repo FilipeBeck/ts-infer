@@ -6,17 +6,6 @@ DOC_OUTPUT="./docs"
 TS_INFER_ID="ts-infer"
 TS_INFER_PATH="$DOC_OUTPUT/$TS_INFER_ID"
 GIT_URL="git@github.com:FilipeBeck/docs.git"
-PRIVATE_KEY_FILENAME="./ssh-key"
-PUBLIC_KEY_FILENAME="./ssh-key.pub"
-
-echo $SSH_PRIVATE_KEY > $PRIVATE_KEY_FILENAME &&
-echo $SSH_PUBLIC_KEY > $PUBLIC_KEY_FILENAME &&
-ssh-add PRIVATE_KEY_FILENAME
-
-if [ ! $? ]; then
-	echo "Erro ao adicionar as chaves SSH"
-	exit $?
-fi
 
 if [ ! -d $DOC_SRC_PATH ]; then
 	echo "Diretório \"$DOC_SRC_PATH\" não existe"

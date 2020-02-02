@@ -14,5 +14,3 @@ before_script:
 script:
 - yarn test
 - yarn coveralls
-- yarn doc
-- yarn deploy-doc
