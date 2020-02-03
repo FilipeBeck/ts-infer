@@ -12,6 +12,7 @@
     "type": "git",
     "url": "git@github.com:FilipeBeck/ts-infer.git"
   },
+  "docs": "https://github.com/FilipeBeck/ts-infer",
   "private": false,
   "scripts": {
     "test": "tsc && jest --coverage",
