@@ -33,10 +33,11 @@
     "rewire": "^4.0.1",
     "ts-jest": "^24.0.2",
     "typedoc": "^0.16.9",
-    "typescript": "^3.5.2"
+    "typescript": "^3.8.0-beta"
   },
   "dependencies": {
     "get-tsconfig": "^1.0.1",
-    "tslib": "^1.10.0"
+    "tslib": "^1.10.0",
+    "vanilla-x": "^1.0.1"
   }
 }

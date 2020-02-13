@@ -40,7 +40,7 @@ test('Inferência de restrição de atributos', () => {
 
 A função `infer()` verifica erros de compilção no `callback` fornecido como argumento e lança uma exceção caso a mesma contenha erros. Um segundo argumento com as opções de compilação pode ser fornecido. Se omitido, será usado o mesmo arquivo do projeto corrente.
 
-__IMPORTANTE__: O uso de `@ts-ignore` é necessário para não haver erros na compilação do arquivo de teste. Essas linhas serão removidas por `infer()` antes da inferência. Além disso, o escopo do `callback` fornecido se limita apenas às declarações locais e importações `top-level`.
+__IMPORTANTE__: O uso de `@ts-ignore` é necessário para não haver erros na compilação do arquivo de teste. Essas linhas serão removidas por `infer()` antes da inferência.
 
 ```typescript
 import { diagnose } from 'ts-infer'

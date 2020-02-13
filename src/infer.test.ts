@@ -1,15 +1,15 @@
 import ts from 'typescript'
-import fs from 'fs'
 import rewire from 'rewire'
 import infer, { diagnose } from './infer'
-const inferModule = rewire("../app/infer");
+const inferModule = rewire("../app/infer")
+const compiledPrograms = inferModule.__get__('compiledPrograms') as Dictionary<ts.Program>
+const dependentCompilerOptions = inferModule.__get__('dependentCompilerOptions') as ts.CompilerOptions
 const getStack = inferModule.__get__('getStack') as () => string[]
-const getFileContent = inferModule.__get__('getFileContent') as (fileName: string) => string
 const getCodeOrigin = inferModule.__get__('getCodeOrigin') as (stack: string[]) => [string, number, number]
-const getImports = inferModule.__get__('getImports') as (content: string) => string
-const getContentBetweenTokens = inferModule.__get__('getContentBetweenTokens') as (tokens: [string, string], content: string, beginIndexes: [number, number]) => string
-const removeIgnoreComments = inferModule.__get__('removeIgnoreComments') as (code: string) => string
-const getDiagnostics = inferModule.__get__('getDiagnostics') as (code: string) => readonly ts.Diagnostic[]
+const getIndexesBetweenTokens = inferModule.__get__('getIndexesBetweenTokens') as (tokens: [string, string], content: string, beginIndexes: [number, number]) => [number, number]
+const disableIgnoreComments = inferModule.__get__('disableIgnoreComments') as (code: string) => string
+const isSameCompilerOptions = inferModule.__get__('isSameCompilerOptions') as (program: ts.Program, compilerOptions: ts.CompilerOptions) => boolean
+const getProgram = inferModule.__get__('getProgram') as (sourceFileName: string, compilerOptions: ts.CompilerOptions) => ts.Program
 
 test('getStack', () => {
 	const wrapperCaller6e5bc4931e93496e937a984b66359207 = () => {
@@ -22,22 +22,6 @@ test('getStack', () => {
 	}
 	
 	wrapperCaller6e5bc4931e93496e937a984b66359207()
-})
-
-test('getFileContent', () => {
-	const fileName = 'getFileContent.test.data'
-	const writeContent = `() => {
-		alert('Hello infer')
-	}`
-
-	fs.writeFileSync(fileName, writeContent, 'utf-8')
-
-	const readContent = getFileContent(fileName)
-	const isContentSame = readContent == writeContent
-
-	fs.unlinkSync(fileName)
-
-	expect(isContentSame).toBeTruthy()
 })
 
 test('getCodeOrigin', () => {
@@ -53,98 +37,80 @@ test('getCodeOrigin', () => {
 	expect(diagnose).not.toThrow()
 })
 
-test('getImports', () => {
-	const imports = [
-		'import a from \'a\'',
-		'  import { b } from \'b\'',
-		'import \'c\'',
-		' import * as d from \'d\''
-	]
-
-	const code = [
-		'const x = 10',
-		'imports wrong from \'wrong\'',
-		imports[0],
-		imports[1],
-		'console.log("Hello")',
-		imports[2],
-		imports[3],
-		'function foo() {',
-		'  return \'foo\'',
-		'}',
-		'',
-		'export { foo }'
-	]
-
-	const extractedImports = getImports(code.join('\n'))
-
-	expect(extractedImports).toBe(imports.map(imp => imp + ';').join('\n'))
-})
-
-test('getContentBetweenTokes', () => {
-	const code = `    (() => {
+test('getIndexesBetweenTokens', () => {
+	const codeToFind = `(() => {
 		interface I1 {
 			a: number
 			b: string
 		}
-	})    `
-
-	const trimedCode = code.trim()
-
-	expect(getContentBetweenTokens(['(', ')'], code, [1, 1])).toBe(trimedCode)
-	expect(getContentBetweenTokens(['{', '}'], code, [1, 1])).not.toBe(trimedCode)
-	expect(() => getContentBetweenTokens(['(', ')'], code, [2, 1])).toThrow()
-})
-
-test('getDiagnostics', () => {
-	const code1 = `(() => {
-		interface Inter {
-			a: number
-			b: string
-		}
-		// @ts-ignore
-		const inter: Inter = { a: 1, b: "2" }
-
-		return inter
 	})`
 
-	const code2 = `(() => {
-		interface Inter {
-			a: number
-			b: string
+	const code = `    // Comentário
+		const prop = 'Hello'
+		console.log(prop)
+		 ${codeToFind}    // Outro comentário
+		if (prop) {
+			
 		}
-		//@ts-ignore
-		const inter: Inter = { a: 1, b: 2 }
-	})`
+	`
 
-	expect(getDiagnostics(code1).length).toBe(0)
-	expect(getDiagnostics(code2).length).toBeGreaterThan(0)
+	const start = code.indexOf(codeToFind)
+	const end = start + codeToFind.length
+
+	expect(getIndexesBetweenTokens(['(', ')'], code, [4, 1])).toEqual([start, end])
+	expect(getIndexesBetweenTokens(['{', '}'], code, [1, 1])).not.toEqual([start, end])
+	expect(() => getIndexesBetweenTokens(['(', ')'], code, [6, 1])).toThrow()
 })
 
-test('removeIgnoreTags', () => {
+test('isSameCompilerOptions', () => {
+	const program = ts.createProgram([__filename], dependentCompilerOptions)
+	const sameCompilerOptions = program.getCompilerOptions().xClone()
+	const diffCompilerOptions = sameCompilerOptions.xClone()
+	diffCompilerOptions.strict = false
+
+	expect(isSameCompilerOptions(program, sameCompilerOptions)).toBeTruthy()
+	expect(isSameCompilerOptions(program, diffCompilerOptions)).toBeFalsy()
+})
+
+test('getProgram', () => {
+	const diffCompilerOptions = dependentCompilerOptions.xClone()
+	diffCompilerOptions.declaration = false
+
+	getProgram(__filename, dependentCompilerOptions) // 1
+	getProgram(__filename, dependentCompilerOptions.xClone()) // 1
+	getProgram(__filename, diffCompilerOptions) // 2
+	getProgram(require.resolve('./infer'), dependentCompilerOptions) // 3
+	getProgram(require.resolve('./infer'), dependentCompilerOptions.xClone()) // 3
+
+	expect(compiledPrograms.xKeys.length).toBe(2)
+})
+
+test('disableIgnoreComments', () => {
 	const codeBeforeRemove = `
 		// Não removido
 		const a = 10
 		// @ts-ignore
 		const b = 20
-		// @ts-ignore - texto removido junto
+		// @ts-ignore - mais comentário
 		const c = 30
-		// Não removido //@ts-ignore
-		// Não removido @ts-ignore
+		// Mais comentário //@ts-ignore
+		// Mais comentário @ts-ignore
 		const d = 40
 	`
 
 	const codeAfterRemove = `
 		// Não removido
 		const a = 10
+		// #ts-ignore
 		const b = 20
+		// #ts-ignore - mais comentário
 		const c = 30
-		// Não removido //@ts-ignore
-		// Não removido @ts-ignore
+		// Mais comentário //@ts-ignore
+		// Mais comentário @ts-ignore
 		const d = 40
 	`
 
-	const removed = removeIgnoreComments(codeBeforeRemove)
+	const removed = disableIgnoreComments(codeBeforeRemove)
 
 	expect(removed).toBe(codeAfterRemove)
 })
