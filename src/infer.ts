@@ -28,9 +28,12 @@ const inferHost: ts.CompilerHost = {
 }
 
 /**
- * Infere a função typescript especificada, disparando uma exceção caso a mesma apresente erros de compilação. As declarações `// @ts-ignore` serão removidas. Isso possibilita que o usuário insira essas diretivas para o compilador não falhar na verificação do arquivo de teste, mas falhar na inferência de `infer()` e passar no teste quando isso for o esperado.
- * @param closure Trecho de código a ser testado.
- * @param compilerOptions Configurações de compilação. Se não fornecido, usa o arquivo do projeto corrente.
+ * 🇺🇸 Infers the specified typescript function, throwing an exception if there are compilation errors. The `// @ts-ignore` declarations will be removed. This allows the user to enter these directives so that the compiler does not fail to check the test file, but fails in the `infer ()` inference and pass the test when this is expected.
+ * 
+ * 🇧🇷 Infere a função typescript especificada, disparando uma exceção caso a mesma apresente erros de compilação. As declarações `// @ts-ignore` serão removidas. Isso possibilita que o usuário insira essas diretivas para o compilador não falhar na verificação do arquivo de teste, mas falhar na inferência de `infer()` e passar no teste quando isso for o esperado.
+ * 
+ * @param closure 🇺🇸 Code snippet to be tested. 🇧🇷 Trecho de código a ser testado.
+ * @param compilerOptions 🇺🇸 Build settings. If not provided, use the dependent project file. 🇧🇷 Configurações de compilação. Se não fornecido, usa o arquivo do projeto corrente.
  */
 export default function infer(closure: () => void, compilerOptions?: ts.CompilerOptions): void {
 	const errors = diagnose(closure, compilerOptions)
@@ -41,9 +44,11 @@ export default function infer(closure: () => void, compilerOptions?: ts.Compiler
 }
 
 /**
- * Infere a função typescript especificada, retornando uma lista de todos os erros encontrados. Como em `infer`, as declarações de `// @ts-ignore` serão removidas.
- * @param closure Trecho de código a ser testado.
- * @param compilerOptions Configurações de compilação. Se não fornecido, usa o arquivo do projeto corrente.
+ * 🇺🇸 Infers the specified typescript function, returning a list of all errors found. As in `infer`, the `// @ts-ignore` declarations will be removed.
+ * 
+ * 🇧🇷 Infere a função typescript especificada, retornando uma lista de todos os erros encontrados. Como em `infer`, as declarações de `// @ts-ignore` serão removidas.
+ * @param closure 🇺🇸 Code snippet to be tested. 🇧🇷 Trecho de código a ser testado.
+ * @param compilerOptions 🇺🇸 Build settings. 🇧🇷 Configurações de compilação. Se não fornecido, usa o arquivo do projeto corrente.
  */
 export function diagnose(_closure: () => void, compilerOptions?: ts.CompilerOptions): readonly ts.Diagnostic[] {
 	const stack = getStack()
