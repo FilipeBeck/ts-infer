@@ -1,8 +1,14 @@
 module.exports = {
-	"roots": [
-		"<rootDir>/src"
+	globals: {
+		"ts-jest": {
+			compiler: "@filipe.beck/typescript-x",
+			tsConfig: "./test/tsconfig.json"
+		}
+	},
+	roots: [
+		"<rootDir>/test"
 	],
-	"transform": {
+	transform: {
 		"^.+\\.tsx?$": "ts-jest"
 	}
 }

@@ -1,20 +1,10 @@
 import ts from 'typescript'
-import rewire from 'rewire'
-import infer, { diagnose } from './infer'
-const inferModule = rewire("../app/infer")
-const compiledPrograms = inferModule.__get__('compiledPrograms') as Dictionary<ts.Program>
-const dependentCompilerOptions = inferModule.__get__('dependentCompilerOptions') as ts.CompilerOptions
-const getStack = inferModule.__get__('getStack') as () => string[]
-const getCodeOrigin = inferModule.__get__('getCodeOrigin') as (stack: string[]) => [string, number, number]
-const getIndexesBetweenTokens = inferModule.__get__('getIndexesBetweenTokens') as (tokens: [string, string], content: string, beginIndexes: [number, number]) => [number, number]
-const disableIgnoreComments = inferModule.__get__('disableIgnoreComments') as (code: string) => string
-const isSameCompilerOptions = inferModule.__get__('isSameCompilerOptions') as (program: ts.Program, compilerOptions: ts.CompilerOptions) => boolean
-const getProgram = inferModule.__get__('getProgram') as (sourceFileName: string, compilerOptions: ts.CompilerOptions) => ts.Program
+import infer, { diagnose, compiledPrograms, dependentCompilerOptions, getStack, getCodeOrigin, getIndexesBetweenTokens, disableIgnoreComments, isSameCompilerOptions, getProgram } from '../src/infer'
 
 test('getStack', () => {
 	const wrapperCaller6e5bc4931e93496e937a984b66359207 = () => {
 		const stack = getStack()
-		const isGetStackFirstLine = Boolean(stack[0] && stack[0].includes('at getStack'))
+		const isGetStackFirstLine = Boolean(stack[0] && stack[0].includes('getStack'))
 		const isWrapperCallerSecondLine = Boolean(stack[1] && stack[1].includes('at wrapperCaller6e5bc4931e93496e937a984b66359207'))
 
 		expect(isGetStackFirstLine).toBeTruthy()
@@ -79,8 +69,8 @@ test('getProgram', () => {
 	getProgram(__filename, dependentCompilerOptions) // 1
 	getProgram(__filename, dependentCompilerOptions.xClone()) // 1
 	getProgram(__filename, diffCompilerOptions) // 2
-	getProgram(require.resolve('./infer'), dependentCompilerOptions) // 3
-	getProgram(require.resolve('./infer'), dependentCompilerOptions.xClone()) // 3
+	getProgram(require.resolve('../src/infer'), dependentCompilerOptions) // 3
+	getProgram(require.resolve('../src/infer'), dependentCompilerOptions.xClone()) // 3
 
 	expect(compiledPrograms.xKeys.length).toBe(2)
 })
