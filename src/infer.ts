@@ -57,7 +57,7 @@ export function diagnose(_closure: () => void, compilerOptions?: ts.CompilerOpti
 	const code = getIndexesBetweenTokens(['(', ')'], fileContent, [line, column])
 	const diagnostics = getDiagnostics(code, fileName, compilerOptions)
 
-	return diagnostics.filter(diagnostic => diagnostic.category == ts.DiagnosticCategory.Error)
+	return diagnostics.filter(diagnostic => diagnostic.category === ts.DiagnosticCategory.Error)
 }
 
 /**
@@ -82,16 +82,16 @@ function getStack(): string[] {
  */
 function getCodeOrigin(stack: string[]): [string, number, number] {
 	const inferLine = stack[1]
-	const callerLine = stack.find(line => line.search(/at (.*\.)?test/) != -1)
+	const callerLine = stack.find(line => line.search(/at (.*\.)?test/) !== -1)
 
-	if (!inferLine || inferLine.search(/at (.*\.)?diagnose/) == -1) {
+	if (!inferLine || inferLine.search(/at (.*\.)?diagnose/) === -1) {
 		throw new Error('Função sendo chamada fora do escopo do pacote')
 	}
 
 	const referencePiece = callerLine && (callerLine.match(/\((.+)\)/) || callerLine.match(/at\s+(.+)/))
 	const origin = referencePiece && referencePiece[1].split(':').map((part, i) => i && Number(part) || part) as [string, number, number]
 
-	if (!origin || origin.length != 3) {
+	if (!origin || origin.length !== 3) {
 		console.error('Formato inesperado da pilha de chamadas')
 		process.exit(1)
 	}
@@ -119,12 +119,12 @@ function getIndexesBetweenTokens(tokens: [string, string], content: string, orig
 	for (let i = begin, count = content.length; i < count; i++) {
 		const digit = content[i]
 
-		if (digit == open) {
+		if (digit === open) {
 			if (!(tokenCount++)) {
 				begin = i
 			}
 		}
-		else if (digit == close) {
+		else if (digit === close) {
 			end = i
 			if (!(--tokenCount)) {
 				return [begin, end + 1]
@@ -151,12 +151,12 @@ function disableIgnoreComments(code: string): string {
 function isSameCompilerOptions(program: ts.Program, compilerOptions: ts.CompilerOptions): boolean {
 	const programCompilerOptions = program.getCompilerOptions()
 
-	if (compilerOptions.xKeys.length != programCompilerOptions.xKeys.length) {
+	if (compilerOptions.xKeys.length !== programCompilerOptions.xKeys.length) {
 		return false
 	}
 
 	for (const key in compilerOptions) {
-		if (compilerOptions[key] != programCompilerOptions[key]) {
+		if (compilerOptions[key] !== programCompilerOptions[key]) {
 			return false
 		}
 	}
@@ -193,7 +193,7 @@ function getDiagnostics(positions: [number, number], sourceFileName: string, com
 	const program = getProgram(sourceFileName, compilerOptions)
 
 	return ts.getPreEmitDiagnostics(program).filter(diagnostic => (
-		diagnostic.file && diagnostic.file.fileName == sourceFileName &&
+		diagnostic.file && diagnostic.file.fileName === sourceFileName &&
 		diagnostic.start && diagnostic.start >= start && diagnostic.start + (diagnostic.length || 0) <= end
 	))
 }
