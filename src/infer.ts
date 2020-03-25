@@ -1,6 +1,6 @@
+import 'vanilla-x/Object'
 import ts from 'typescript'
 import { getTsconfig } from 'get-tsconfig'
-import 'vanilla-x/Object'
 
 /** Mapa de diagnósticos indexado pelo nome do arquivo. */
 const compiledPrograms: Dictionary<ts.Program> = {}
@@ -180,7 +180,7 @@ function getProgram(sourceFileName: string, compilerOptions: ts.CompilerOptions)
 }
 
 /**
- * Retorna a lista de diagnósticos encontrados no código especificado. Essa função precisa criar um arquivo temporário no mesmo local para as importações serem bem sucedidas.
+ * Retorna a lista de diagnósticos encontrados no código especificado.
  * @param positions Código a ser diagnosticado.
  * @param sourceFileName Caminho do arquivo fonte.
  * @param compilerOptions Opções do compilador. Se não fornecido, usa o arquivo do projeto corrente.
