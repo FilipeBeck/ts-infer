@@ -4,3 +4,4 @@ doc
 docs
 yarn.lock
 coverage
+test/js-environment

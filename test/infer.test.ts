@@ -1,5 +1,24 @@
 import ts from 'typescript'
 import infer, { diagnose, compiledPrograms, dependentCompilerOptions, getStack, getCodeOrigin, getIndexesBetweenTokens, disableIgnoreComments, isSameCompilerOptions, getProgram } from '../src/infer'
+import fs from 'fs'
+import path from 'path'
+
+beforeAll(async () => {
+	if (__filename.endsWith('.js')) {
+		return
+	}
+	
+	await new Promise((resolve, reject) => {
+		fs.stat(path.resolve(__dirname, 'js-environment'), (error, stats) => {
+			if (error || !stats.isDirectory()) {
+				reject(new Error('Diretório "js-environment" não encontrado. Execute `yarn setup-test` primeiro.'))
+			}
+			else {
+				resolve()
+			}
+		})
+	})
+})
 
 test('getStack', () => {
 	const wrapperCaller6e5bc4931e93496e937a984b66359207 = () => {
@@ -14,18 +33,20 @@ test('getStack', () => {
 	wrapperCaller6e5bc4931e93496e937a984b66359207()
 })
 
-test('getCodeOrigin', () => {
-	const diagnose = () => {
-		const stack = getStack()
-		const [fileName] = getCodeOrigin(stack)
-		
-		if (fileName != __filename) {
-			throw new Error(`${fileName} != ${__filename}`)
-		}
-	}
+if (!__filename.endsWith('.js')) {
+	test('getCodeOrigin', () => {
+		const diagnose = () => {
+			const stack = getStack()
+			const [fileName] = getCodeOrigin(stack)
 
-	expect(diagnose).not.toThrow()
-})
+			if (fileName !== __filename) {
+				throw new Error(`${fileName} != ${__filename}`)
+			}
+		}
+
+		expect(diagnose).not.toThrow()
+	})
+}
 
 test('getIndexesBetweenTokens', () => {
 	const codeToFind = `(() => {

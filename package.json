@@ -16,10 +16,11 @@
   "private": false,
   "scripts": {
     "clear": "rm -rf ./app",
-    "test": "jest --coverage",
-    "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "build": "yarn clear && tsc && cp package.json README.md ./app",
-    "doc": "typedoc --options typedoc.json",
+    "setup-test": "yarn tsc -p ./test/tsconfig.json",
+    "test": "yarn jest --coverage",
+    "coveralls": "cat ./coverage/lcov.info | yarn coveralls",
+    "build": "yarn clear && yarn tsc && cp package.json README.md ./app",
+    "doc": "yarn typedoc --options typedoc.json",
     "deploy-doc": "./deploy-doc.sh"
   },
   "peerDependencies": {

@@ -1,7 +1,8 @@
 {
 	"extends": "../tsconfig",
 	"compilerOptions": {
-		"testEnvironment": true
+		"testEnvironment": true,
+		"outDir": "./js-environment"
 	},
 	"include": ["./"]
 }
